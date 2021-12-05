@@ -17,7 +17,8 @@ func main() {
 	var sum float64
 	//定义输入输出变量
 
-	for i := 0; i < NumsPeople; i++ {
+	i := 0
+	for  {
 
 		fmt.Print("请输入姓名：")
 		fmt.Scanln(&name[i])
@@ -139,7 +140,8 @@ func main() {
 		}
 		// 给出女性的健康建议
 
-		if i == NumsPeople-1 {
+		i++
+		if i > NumsPeople-1 {
 			fmt.Println("输入完毕")
 			break
 		}
