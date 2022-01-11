@@ -7,7 +7,6 @@ var requestFloors []int
 type Elevator struct {
 	floor     int
 	nowFloor  int
-	stopFloor int
 	direction string
 }
 
@@ -35,7 +34,6 @@ func (e *Elevator) elevatorMove(direction string, nowFloor int) {
 			time.Sleep(1 * time.Second)
 			nowFloor++
 			if nowFloor == requestFloors[0] {
-				e.stopFloor = nowFloor
 				requestFloors = requestFloors[1:]
 				return
 			}
@@ -47,7 +45,6 @@ func (e *Elevator) elevatorMove(direction string, nowFloor int) {
 			time.Sleep(1 * time.Second)
 			nowFloor--
 			if nowFloor == requestFloors[0] {
-				e.stopFloor = nowFloor
 				requestFloors = requestFloors[1:]
 				return
 			}
