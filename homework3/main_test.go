@@ -48,15 +48,6 @@ func TestCase3(t *testing.T) {
 		t.Fatalf("预期电梯停在四楼，但得到的却是：%d", e.nowFloor)
 	}
 
-	direction = e.getDirection(requestFloors)
-	if direction != "向下" {
-		t.Fatalf("预期电梯向下，但得到的却是：%s", direction)
-	}
-	e.elevatorMove(e.direction, e.nowFloor)
-	if e.nowFloor != 2 {
-		t.Fatalf("预期电梯停在四楼，但得到的却是：%d", e.nowFloor)
-	}
-
 }
 func TestCase4(t *testing.T) {
 	e := &Elevator{

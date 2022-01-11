@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -27,44 +28,54 @@ func (e *Elevator) getDirection(requestFloors []int) string {
 		}
 
 	}
-
 	return ""
 }
-
 func (e *Elevator) elevatorMove(direction string, nowFloor int) {
+	sort.Ints(requestFloors)
 	if direction == "向上" {
-		for {
-			time.Sleep(1 * time.Second)
-			nowFloor++
-			e.nowFloor = nowFloor
-			if nowFloor == requestFloors[0] {
-				e.Open()
-				time.Sleep(1 * time.Second)
-				e.Close()
-				requestFloors = requestFloors[1:]
-				return
-			}
-		}
+		e.upMove(nowFloor)
 	}
 	if direction == "向下" {
-		for {
-			time.Sleep(1 * time.Second)
-			nowFloor--
-			e.nowFloor = nowFloor
-			if nowFloor == requestFloors[0] {
+		e.downMove(nowFloor)
+	}
+}
+func (e *Elevator) Open() {
+	fmt.Println("open the door")
+}
+func (e *Elevator) Close() {
+	fmt.Println("close the door")
+}
+func (e *Elevator) upMove(nowFloor int) {
+	for {
+		time.Sleep(1 * time.Second)
+		nowFloor++
+		for _, requestFloor := range requestFloors {
+			if nowFloor == requestFloor {
 				e.Open()
 				time.Sleep(1 * time.Second)
 				e.Close()
-				requestFloors = requestFloors[1:]
+				e.nowFloor = nowFloor
+			}
+			if nowFloor == e.floor {
 				return
 			}
 		}
 	}
-	return
 }
-func (e *Elevator) Open() {
-	fmt.Println("电梯开门")
-}
-func (e *Elevator) Close() {
-	fmt.Println("电梯关门")
+func (e *Elevator) downMove(nowFloor int) {
+	for {
+		time.Sleep(1 * time.Second)
+		nowFloor--
+		for _, requestFloor := range requestFloors {
+			if nowFloor == requestFloor {
+				e.Open()
+				time.Sleep(1 * time.Second)
+				e.Close()
+				e.nowFloor = nowFloor
+			}
+			if nowFloor == 1 {
+				return
+			}
+		}
+	}
 }
