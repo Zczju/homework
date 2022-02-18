@@ -39,8 +39,9 @@ func (p *Person) getBase() {
 func (p *Person) frChange() {
 	min := -0.2
 	max := 0.2
-	if p.FRBase+rand.Float64()*(max-min)+min < 0 {
-		p.ChangedFR = p.FRBase - rand.Float64()*(max-min) - min
+	change := rand.Float64()*(max-min) + min
+	if p.FRBase+change < 0 {
+		p.ChangedFR = p.FRBase - change
 	}
-	p.ChangedFR = p.FRBase + rand.Float64()*(max-min) + min
+	p.ChangedFR = p.FRBase + change
 }
