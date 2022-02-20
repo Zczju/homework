@@ -3,49 +3,57 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
-	r := &FatRateRank{
-		items: make([]RankItem, 0, 1000),
-	}
+	wg := sync.WaitGroup{}
+	r := &FatRateRank{}
 	for i := 0; i < 1000; i++ {
-		go func(i int) {
+		wg.Add(1)
+		i := i
+		go func() {
+			defer wg.Done()
 			p := &Person{
-				name: fmt.Sprintf("%d", i),
+				name:        fmt.Sprint(i),
+				BaseFatRate: rand.Float64() * 0.4,
 			}
 
-			p.getBase()
-
-			p.frChange()
-			r.inputRecord(p.name, p.ChangedFR)
-			rank, _ := r.getRank(p.name)
-			fmt.Println(p.name, p.ChangedFR, rank)
-		}(i)
+			// 无限循环（不停地去更新自己的体脂信息）
+			for {
+				if err := p.changeFatRate(); err == nil {
+					rank := r.updateRecord(p.name, p.CurrentFatRate)
+					fmt.Println(p.name, p.CurrentFatRate, rank)
+				} else {
+					fmt.Println(p.name, err)
+				}
+				time.Sleep(time.Second)
+			}
+		}()
 	}
-	time.Sleep(1 * time.Second)
+
+	wg.Wait()
 }
 
 type Person struct {
-	name      string
-	FRBase    float64
-	ChangedFR float64
+	name string
+
+	BaseFatRate    float64
+	CurrentFatRate float64
 }
 
-func (p *Person) getBase() {
-	p.FRBase = rand.Float64() * 0.4
-}
-
-func (p *Person) frChange() {
+func (p *Person) changeFatRate() error {
 	min := -0.2
 	max := 0.2
-	change := rand.Float64()*(max-min) + min
-	if p.FRBase+change < 0 {
-		p.ChangedFR = p.FRBase - change
+	delta := rand.Float64()*(max-min) + min
+	result := p.BaseFatRate + delta
+
+	if result < 0 || result > 0.4 {
+		// 超出范围返回错误
+		return fmt.Errorf("invalid fat rate: %f", result)
 	} else {
-		p.ChangedFR = p.FRBase + change
+		p.CurrentFatRate = result
+		return nil
 	}
 }

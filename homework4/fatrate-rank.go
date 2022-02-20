@@ -1,10 +1,6 @@
 package main
 
-import (
-	"math"
-	"sort"
-	"sync"
-)
+import "sync"
 
 type RankItem struct {
 	Name    string
@@ -12,59 +8,59 @@ type RankItem struct {
 }
 
 type FatRateRank struct {
+	// 有序存储所有RankItem
 	items []RankItem
 	sync.Mutex
 }
 
-func (r *FatRateRank) inputRecord(name string, fatRate ...float64) {
-	minFatRate := math.MaxFloat64
-	for _, item := range fatRate {
-		if minFatRate > item {
-			minFatRate = item
-		}
-	}
-	found := false
-	for i, item := range r.items { // 将录入值放入结构体，注意是对象不是指针，最后要再赋值一下
-		if item.Name == name {
-			if item.FatRate >= minFatRate {
-				item.FatRate = minFatRate
-			}
-			r.items[i] = item
-			found = true
-			break
-		}
-	}
-	if !found {
-		r.items = append(r.items, RankItem{
-			Name:    name,
-			FatRate: minFatRate,
-		})
-	}
-
-}
-func (r *FatRateRank) getRank(name string) (rank int, fatRate float64) {
+func (r *FatRateRank) updateRecord(name string, fatRate float64) int {
 	r.Lock()
 	defer r.Unlock()
-	sort.Slice(r.items, func(i, j int) bool {
-		return r.items[i].FatRate < r.items[j].FatRate // 对结构体中某一字段排序
-	})
-	frs := map[float64]struct{}{}
-	for _, item := range r.items {
-		frs[item.FatRate] = struct{}{}
+	currentItem := RankItem{
+		Name:    name,
+		FatRate: fatRate,
+	}
+
+	// 一次遍历，查找先前idx以供删除，和将要插入的idx
+	previousIdx, currentIdx := -1, -1
+	for idx, item := range r.items {
+		if previousIdx >= 0 && currentIdx >= 0 {
+			break
+		}
+
 		if item.Name == name {
-			fatRate = item.FatRate
+			previousIdx = idx
+		}
+
+		if currentIdx < 0 && item.FatRate > fatRate {
+			// 只取第一次大于当前体脂率的idx
+			currentIdx = idx
 		}
 	}
-	rankArr := make([]float64, 0, len(frs))
-	for k := range frs {
-		rankArr = append(rankArr, k)
-	}
-	sort.Float64s(rankArr)
-	for i, frItem := range rankArr {
-		if frItem == fatRate {
-			rank = i + 1
-			return
+	if previousIdx > 0 {
+		// 如果找到了有先前的，就删掉它
+		r.items = append(r.items[:previousIdx], r.items[previousIdx+1:]...)
+
+		// 如果删除的idx在即将插入的之前，则将即将插入的idx-1
+		if previousIdx < currentIdx {
+			currentIdx -= 1
 		}
 	}
-	return
+
+	if currentIdx == -1 {
+		r.items = append(r.items, currentItem)
+		currentIdx = len(r.items) - 1
+	} else {
+		r.items = insert(r.items, currentIdx, currentItem)
+	}
+
+	return currentIdx
+}
+
+func insert(a []RankItem, index int, value RankItem) []RankItem {
+	last := len(a) - 1
+	a = append(a, a[last])
+	copy(a[index+1:], a[index:last])
+	a[index] = value
+	return a
 }
