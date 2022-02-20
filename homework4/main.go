@@ -8,11 +8,14 @@ import (
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	r := &FatRateRank{}
-	for i := 0; i < 999; i++ {
-		go func() {
+
+	r := &FatRateRank{
+		items: make([]RankItem, 0, 1000),
+	}
+	for i := 0; i < 1000; i++ {
+		go func(i int) {
 			p := &Person{
-				name: fmt.Sprint(i),
+				name: fmt.Sprintf("%d", i),
 			}
 
 			p.getBase()
@@ -21,7 +24,7 @@ func main() {
 			r.inputRecord(p.name, p.ChangedFR)
 			rank, _ := r.getRank(p.name)
 			fmt.Println(p.name, p.ChangedFR, rank)
-		}()
+		}(i)
 	}
 	time.Sleep(1 * time.Second)
 }
@@ -42,6 +45,7 @@ func (p *Person) frChange() {
 	change := rand.Float64()*(max-min) + min
 	if p.FRBase+change < 0 {
 		p.ChangedFR = p.FRBase - change
+	} else {
+		p.ChangedFR = p.FRBase + change
 	}
-	p.ChangedFR = p.FRBase + change
 }
