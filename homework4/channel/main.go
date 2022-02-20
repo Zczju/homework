@@ -14,6 +14,7 @@ func main() {
 		updateCh: updateCh,
 	}
 	wg.Add(1000)
+	go r.updateRecord()
 	for i := 0; i < 1000; i++ {
 		i := i
 		go func() {
@@ -22,8 +23,6 @@ func main() {
 				name:        fmt.Sprint(i),
 				BaseFatRate: rand.Float64() * 0.4,
 			}
-
-			go r.updateRecord()
 			// 无限循环（不停地去更新自己的体脂信息）
 			for {
 				if err := p.changeFatRate(); err == nil {

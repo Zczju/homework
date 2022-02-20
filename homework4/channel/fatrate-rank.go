@@ -33,7 +33,7 @@ func (r *FatRateRank) updateRecord() {
 				currentIdx = idx
 			}
 		}
-		if previousIdx > 0 {
+		if previousIdx >= 0 {
 			// 如果找到了有先前的，就删掉它
 			r.items = append(r.items[:previousIdx], r.items[previousIdx+1:]...)
 
@@ -54,6 +54,9 @@ func (r *FatRateRank) updateRecord() {
 }
 
 func insert(a []RankItem, index int, value RankItem) []RankItem {
+	if index == len(a) {
+		return append(a, value)
+	}
 	last := len(a) - 1
 	a = append(a, a[last])
 	copy(a[index+1:], a[index:last])

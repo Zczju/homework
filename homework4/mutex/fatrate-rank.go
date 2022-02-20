@@ -37,7 +37,7 @@ func (r *FatRateRank) updateRecord(name string, fatRate float64) int {
 			currentIdx = idx
 		}
 	}
-	if previousIdx > 0 {
+	if previousIdx >= 0 {
 		// 如果找到了有先前的，就删掉它
 		r.items = append(r.items[:previousIdx], r.items[previousIdx+1:]...)
 
