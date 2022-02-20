@@ -9,9 +9,9 @@ import (
 
 func main() {
 	wg := sync.WaitGroup{}
-	rankCh := make(chan int, 1000)
+	updateCh := make(chan *Person)
 	r := &FatRateRank{
-		rankCh: rankCh,
+		updateCh: updateCh,
 	}
 	wg.Add(1000)
 	for i := 0; i < 1000; i++ {
@@ -23,18 +23,13 @@ func main() {
 				BaseFatRate: rand.Float64() * 0.4,
 			}
 
+			go r.updateRecord()
 			// 无限循环（不停地去更新自己的体脂信息）
 			for {
 				if err := p.changeFatRate(); err == nil {
-					//rank :=
-					r.updateRecord(p.name, p.CurrentFatRate)
+					//rank := r.updateRecord(p.name, p.CurrentFatRate)
 					//fmt.Println(p.name, p.CurrentFatRate, rank)
-					go func() {
-						for rank := range rankCh {
-							fmt.Println(p.name, p.CurrentFatRate, rank)
-						}
-						close(rankCh)
-					}()
+					updateCh <- p
 				} else {
 					fmt.Println(p.name, err)
 				}
