@@ -9,9 +9,12 @@ import (
 
 func main() {
 	wg := sync.WaitGroup{}
-	r := &FatRateRank{}
+	rankCh := make(chan int, 1000)
+	r := &FatRateRank{
+		rankCh: rankCh,
+	}
+	wg.Add(1000)
 	for i := 0; i < 1000; i++ {
-		wg.Add(1)
 		i := i
 		go func() {
 			defer wg.Done()
@@ -23,8 +26,15 @@ func main() {
 			// 无限循环（不停地去更新自己的体脂信息）
 			for {
 				if err := p.changeFatRate(); err == nil {
-					rank := r.updateRecord(p.name, p.CurrentFatRate)
-					fmt.Println(p.name, p.CurrentFatRate, rank)
+					//rank :=
+					r.updateRecord(p.name, p.CurrentFatRate)
+					//fmt.Println(p.name, p.CurrentFatRate, rank)
+					go func() {
+						for rank := range rankCh {
+							fmt.Println(p.name, p.CurrentFatRate, rank)
+						}
+						close(rankCh)
+					}()
 				} else {
 					fmt.Println(p.name, err)
 				}
@@ -51,7 +61,7 @@ func (p *Person) changeFatRate() error {
 
 	if result < 0 || result > 0.4 {
 		// 超出范围返回错误
-		return fmt.Errorf("invalid fat rate: %f", result)
+		return fmt.Errorf("invalid fatrate: %f", result)
 	} else {
 		p.CurrentFatRate = result
 		return nil
