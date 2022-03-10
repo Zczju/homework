@@ -13,7 +13,7 @@ func (inputFromStd) GetInput(p *Person) error {
 	fmt.Print("姓名: ")
 	_, err := fmt.Scanln(&name)
 
-	var age int
+	var age int64
 	fmt.Print("年龄: ")
 	_, err = fmt.Scanln(&age)
 

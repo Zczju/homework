@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Rank interface {
 	Register(p *Person)
@@ -12,21 +14,30 @@ type FatRateRank struct {
 	frRank  []float64
 }
 
+// 作为全局变量实例化
+var r Rank = &FatRateRank{
+	clients: map[float64]*Person{},
+}
+
 func (fr *FatRateRank) Register(p *Person) {
 	fr.clients[p.FatRate] = p
 }
 
 func (fr *FatRateRank) GetRank(p *Person) {
 	for _, item := range fr.clients {
-		fr.frRank = append(fr.frRank, item.FatRate)
+		// 将没添加过的体脂率添加进排行榜中
+		if uniqueFR(item.FatRate, fr.frRank) {
+			fr.frRank = append(fr.frRank, item.FatRate)
+		}
 	}
 
+	// 进行排序
 	// bubbleSort(&fr.frRank)
 	quickSort(&fr.frRank, 0, len(fr.frRank)-1)
 
 	for i, frItem := range fr.frRank {
 		if p.FatRate == frItem {
-			fmt.Printf("%s的体脂排名是: %d", p.Name, i+1)
+			fmt.Printf("%s的体脂排名是: %d\n", p.Name, i+1)
 		}
 	}
 }
@@ -71,4 +82,13 @@ func quickSort(arr *[]float64, start, end int) {
 		quickSort(arr, l, end)
 	}
 
+}
+
+func uniqueFR(fr float64, frRank []float64) bool {
+	for _, item := range frRank {
+		if fr == item {
+			return false
+		}
+	}
+	return true
 }
