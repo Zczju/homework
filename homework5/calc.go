@@ -13,12 +13,16 @@ func (c Calc) calcBMI(p *Person) (bmi float64, err error) {
 		err = fmt.Errorf("weight cannot be negative")
 		return
 	}
+	if p.Weight == 0 {
+		err = fmt.Errorf("weight cannot be zero")
+		return
+	}
 	if p.Tall < 0 {
 		err = fmt.Errorf("height cannot be negative")
 		return
 	}
 	if p.Tall == 0 {
-		err = fmt.Errorf("height cannot be 0")
+		err = fmt.Errorf("height cannot be zero")
 		return
 	}
 	bmi = p.Weight / (p.Tall * p.Tall)

@@ -26,7 +26,7 @@ func (fr *FatRateRank) GetRank(p *Person) {
 
 	for i, frItem := range fr.frRank {
 		if p.FatRate == frItem {
-			fmt.Printf("%s的体脂排名是%d", p.Name, i+1)
+			fmt.Printf("%s的体脂排名是: %d", p.Name, i+1)
 		}
 	}
 }

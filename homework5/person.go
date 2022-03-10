@@ -28,6 +28,13 @@ func (p *Person) Register() error {
 		return err
 	}
 
+	// 计算体脂率
+	c := &Calc{}
+	if err := c.CalcFatRate(p); err != nil {
+		log.Println("计算FatRate出错: ", err)
+		return err
+	}
+
 	// 以json格式保存个人信息到文件
 	r := &Record{
 		filePath: "C:\\Users\\Administrator\\Desktop\\records.txt",
@@ -45,13 +52,6 @@ func (p *Person) UpdateData() {
 }
 
 func (p *Person) GetRank() error {
-	// 首先计算体脂率
-	c := &Calc{}
-	if err := c.CalcFatRate(p); err != nil {
-		log.Println("计算FatRate出错: ", err)
-		return err
-	}
-
 	// 注册进排行榜，并进行排名，由GetRank打印出来
 	var r Rank = &FatRateRank{
 		clients: map[float64]*Person{},
