@@ -39,5 +39,5 @@ message PersonalShow{
   bool  visiable = 9;
 }
 
-//生成.pb.go文件：protoc --go_out=. --plugin= types.proto
+//生成.pb.go文件：protoc --go_out=. --plugin= type.proto
 //生成gorm注释：protoc-go-inject-tag -input="*.pb.go"
